@@ -24,7 +24,6 @@ public class Application {
         this.localizedService = localizedService;
     }
 
-
     public static void main(String[] args) {
 
         SpringApplication.run(Application.class, args);
