@@ -9,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.shell.jline.InteractiveShellApplicationRunner;
+import org.springframework.shell.jline.ScriptShellApplicationRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.springboot.config.YamlProp;
 import ru.otus.springboot.service.*;
@@ -17,7 +19,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @EnableConfigurationProperties(YamlProp.class)
-@SpringBootTest
+@SpringBootTest(properties={
+        InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
+        ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false"
+})
 public class ApplicationTests {
 
     private Student student;
@@ -65,7 +70,7 @@ public class ApplicationTests {
     public void getStudentName(){
         String firstName = localizedService.getMessage("name.first");
         when(inputServiceMock.ask(firstName)).thenReturn("Иван");
-        studentService.askStudentFirstName();
+        studentService.askStudentFirstName("Иван");
         student = studentService.getStudent();
         Assertions.assertThat("Иван").isEqualTo(student.getFirstName());
     }
@@ -74,7 +79,7 @@ public class ApplicationTests {
     public void getStudentSecondName(){
         String secondName = localizedService.getMessage("name.second");
         when(inputServiceMock.ask(secondName)).thenReturn("Иванов");
-        studentService.askStudentSecondName();
+        studentService.askStudentSecondName("Иванов");
         student = studentService.getStudent();
         Assertions.assertThat("Иванов").isEqualTo(student.getSecondName());
     }

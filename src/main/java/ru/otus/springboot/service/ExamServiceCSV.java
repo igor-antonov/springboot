@@ -22,7 +22,6 @@ public class ExamServiceCSV implements ExamService {
     private String csvPath;
     private InputService inputService;
     private Map<String, String> questions = new HashMap<String, String>();
-    private Integer correctAnswerCount = 0;
 
     public ExamServiceCSV(InputService inputService, LocalizedService localizedService) {
         this.csvPath = localizedService.getPath();
@@ -59,6 +58,7 @@ public class ExamServiceCSV implements ExamService {
     }
 
     public int checkTest() {
+        int correctAnswerCount = 0;
         for (Map.Entry<String, String> question : questions.entrySet()) {
             System.out.println(question.getKey());
             String answer = inputService.ask(question.getKey());
