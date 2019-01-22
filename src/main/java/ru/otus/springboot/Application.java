@@ -3,6 +3,7 @@ package ru.otus.springboot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.context.ApplicationContext;
 import ru.otus.springboot.config.YamlProp;
 import ru.otus.springboot.service.ExamService;
 import ru.otus.springboot.service.LocalizedService;
@@ -12,22 +13,13 @@ import ru.otus.springboot.service.StudentService;
 @EnableConfigurationProperties(YamlProp.class)
 public class Application {
 
-    static ExamService examService;
-    static StudentService studentService;
-    static LocalizedService localizedService;
-
-    public Application(ExamService examService,
-                       StudentService studentService,
-                       LocalizedService localizedService){
-        this.examService = examService;
-        this.studentService = studentService;
-        this.localizedService = localizedService;
-    }
-
-
     public static void main(String[] args) {
 
-        SpringApplication.run(Application.class, args);
+        ApplicationContext context = SpringApplication.run(Application.class, args);
+
+        ExamService examService = context.getBean(ExamService.class);
+        StudentService studentService = context.getBean(StudentService.class);
+        LocalizedService localizedService = context.getBean(LocalizedService.class);
 
         examService.readQuestions();
         studentService.askStudentFirstName();
