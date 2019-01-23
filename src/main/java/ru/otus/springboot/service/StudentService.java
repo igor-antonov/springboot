@@ -4,7 +4,7 @@ import ru.otus.springboot.Student;
 
 public interface StudentService {
 
-    void askStudentFirstName();
-    void askStudentSecondName();
+    String askStudentFirstName(String StudentFirstName);
+    String askStudentSecondName(String StudentSecondName);
     Student getStudent();
 }

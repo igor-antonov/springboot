@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.shell.Shell;
+import org.springframework.shell.jline.InteractiveShellApplicationRunner;
+import org.springframework.shell.jline.ScriptShellApplicationRunner;
 import org.springframework.test.context.junit4.SpringRunner;
 import ru.otus.springboot.config.YamlProp;
 import ru.otus.springboot.service.*;
@@ -17,7 +20,10 @@ import static org.mockito.Mockito.when;
 
 @RunWith(SpringRunner.class)
 @EnableConfigurationProperties(YamlProp.class)
-@SpringBootTest
+@SpringBootTest(properties={
+        InteractiveShellApplicationRunner.SPRING_SHELL_INTERACTIVE_ENABLED + "=false",
+        ScriptShellApplicationRunner.SPRING_SHELL_SCRIPT_ENABLED + "=false"
+})
 public class ApplicationTests {
 
     private Student student;
@@ -29,10 +35,14 @@ public class ApplicationTests {
     LocalizedService localizedService;
     @MockBean
     InputService inputServiceMock;
+    @Autowired
+    Shell shell;
 
     @Before
     public void prepare(){
         examService.readQuestions();
+        shell.evaluate(() -> "name Иван");
+        shell.evaluate(() -> "surname Иванов");
     }
 
     @Test
@@ -48,7 +58,9 @@ public class ApplicationTests {
         when(inputServiceMock.ask("Столица России")).thenReturn("Москва");
         when(inputServiceMock.ask("Сколько часов в сутках")).thenReturn("24");
         when(inputServiceMock.ask("Основатель Facebook (Фамилия)")).thenReturn("Цукерберг");
-        Assertions.assertThat(5).isEqualTo(examService.checkTest());
+        String shellRes = shell.evaluate(() -> "test").toString();
+        String result = shellRes.substring(shellRes.indexOf("Количество"));
+        Assertions.assertThat("Количество правильных ответов: 5").isEqualTo(result);
     }
 
     @Test
@@ -58,39 +70,41 @@ public class ApplicationTests {
         when(inputServiceMock.ask("Столица России")).thenReturn("Сочи");
         when(inputServiceMock.ask("Сколько часов в сутках")).thenReturn("30");
         when(inputServiceMock.ask("Основатель Facebook (Фамилия)")).thenReturn("Дуров");
-        Assertions.assertThat(5).isNotEqualTo(examService.checkTest());
+        String shellRes = shell.evaluate(() -> "test").toString();
+        String result = shellRes.substring(shellRes.indexOf("Количество"));
+        Assertions.assertThat("Количество правильных ответов: 5").isNotEqualTo(result);
     }
 
     @Test
     public void getStudentName(){
-        String firstName = localizedService.getMessage("name.first");
-        when(inputServiceMock.ask(firstName)).thenReturn("Иван");
-        studentService.askStudentFirstName();
-        student = studentService.getStudent();
-        Assertions.assertThat("Иван").isEqualTo(student.getFirstName());
+        Assertions.assertThat("Иван").isEqualTo(studentService.getStudent().getFirstName());
     }
 
     @Test
     public void getStudentSecondName(){
-        String secondName = localizedService.getMessage("name.second");
-        when(inputServiceMock.ask(secondName)).thenReturn("Иванов");
-        studentService.askStudentSecondName();
-        student = studentService.getStudent();
-        Assertions.assertThat("Иванов").isEqualTo(student.getSecondName());
+        Assertions.assertThat("Иванов").isEqualTo(studentService.getStudent().getSecondName());
     }
 
     @Test
     public void getEnglishLocalQuestions(){
-        localizedService.setLocale(Locale.ENGLISH);
-        ExamService examServiceEn = new ExamServiceCSV(inputServiceMock,
-                localizedService);
-        examServiceEn.readQuestions();
+        shell.evaluate(() -> "locale en");
+
         when(inputServiceMock.ask("Third planet from Sun")).thenReturn("Earth");
         when(inputServiceMock.ask("Year of the end of world war ii")).thenReturn("1945");
         when(inputServiceMock.ask("Capital of Russia")).thenReturn("Moscow");
         when(inputServiceMock.ask("How many hours in days")).thenReturn("24");
         when(inputServiceMock.ask("Founder of Facebook (second name)")).thenReturn("Zuckerberg");
-        Assertions.assertThat(5).isEqualTo(examServiceEn.checkTest());
+        String shellRes = shell.evaluate(() -> "test").toString();
+        String result = shellRes.substring(shellRes.indexOf("Quantity"));
+        Assertions.assertThat("Quantity of correct answers: 5").isEqualTo(result);
+    }
+
+    @Test
+    public void getEnglishLocale(){
+        String localeEn = shell.evaluate(() -> "locale en").toString();
+        System.out.println(localeEn);
+        Assertions.assertThat(localizedService.getLocale().toLanguageTag().equals(
+        localeEn));
     }
 
     @After

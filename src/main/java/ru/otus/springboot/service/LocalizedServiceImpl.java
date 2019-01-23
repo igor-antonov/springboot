@@ -3,8 +3,6 @@ package ru.otus.springboot.service;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
 import ru.otus.springboot.config.YamlProp;
-
-import java.util.Formatter;
 import java.util.Locale;
 
 @Service

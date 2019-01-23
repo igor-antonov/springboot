@@ -7,28 +7,26 @@ import ru.otus.springboot.Student;
 public class StudentServiceImpl implements StudentService {
 
     private LocalizedService localizedService;
-    private InputService inputService;
     private Student student = new Student();
     private String firstName;
     private String secondName;
 
-    public StudentServiceImpl(LocalizedService localizedService, InputService inputService){
+    public StudentServiceImpl(LocalizedService localizedService){
         this.localizedService = localizedService;
-        this.inputService = inputService;
     }
 
     @Override
-    public void askStudentFirstName() {
+    public String askStudentFirstName(String studentFirstName) {
         firstName = localizedService.getMessage("name.first");
-        System.out.println(firstName);
-        student.setFirstName(inputService.ask(firstName));
+        student.setFirstName(studentFirstName);
+        return firstName + ": " + studentFirstName;
     }
 
     @Override
-    public void askStudentSecondName() {
+    public String askStudentSecondName(String studentSecondName) {
         secondName = localizedService.getMessage("name.second");
-        System.out.println(secondName);
-        student.setSecondName(inputService.ask(secondName));
+        student.setSecondName(studentSecondName);
+        return secondName + ": " + studentSecondName;
     }
 
     public Student getStudent(){
