@@ -6,10 +6,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import org.springframework.stereotype.Service;
 import ru.otus.springboot.Application;
-import ru.otus.springboot.config.YamlProp;
-
 import java.io.InputStreamReader;
-import java.util.Formatter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,13 +16,13 @@ import java.util.Map;
 @Service
 public class ExamServiceCSV implements ExamService {
 
-    private String csvPath;
     private InputService inputService;
-    private Map<String, String> questions = new HashMap<String, String>();
+    private LocalizedService localizedService;
+    private Map<String, String> questions;
 
     public ExamServiceCSV(InputService inputService, LocalizedService localizedService) {
-        this.csvPath = localizedService.getPath();
         this.inputService = inputService;
+        this.localizedService = localizedService;
     }
 
     public Map<String, String> getQuestions() {
@@ -35,6 +32,7 @@ public class ExamServiceCSV implements ExamService {
     public void readQuestions(){
         try
         {
+            questions = new HashMap<String, String>();
             final CSVParser parser =
                     new CSVParserBuilder()
                             .withSeparator(';')
@@ -42,7 +40,7 @@ public class ExamServiceCSV implements ExamService {
                             .build();
             final CSVReader reader =
                     new CSVReaderBuilder(new InputStreamReader(Application.class.getClassLoader().
-                            getResourceAsStream(csvPath)))
+                            getResourceAsStream(localizedService.getPath())))
                             .withSkipLines(1)
                             .withCSVParser(parser)
                             .build();
